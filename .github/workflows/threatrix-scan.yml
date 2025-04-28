@@ -9,16 +9,23 @@ on:
 jobs:
   scan:
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
 
+      - name: Download Threatrix Cloud Agent
+        run: |
+          curl -L -o threat-agent.zip "https://cloud.threatrix.io/downloads/threat-agent.zip"
+          unzip threat-agent.zip
+
       - name: Run Threatrix Scan
-        uses: threatrix/threat-agent-scan@v1
-        with:
-          eid: ${{ secrets.THREATRIX_EID }}
-          oid: ${{ secrets.THREATRIX_OID }}
-          api-token: ${{ secrets.THREATRIX_API_KEY }}
-          scm-token: ${{ secrets.TOKEN }}
-          app-name: ${{ github.repository }}
-          branch: ${{ github.ref }}
+        run: |
+          chmod +x ./threat-agent-scan.sh
+          ./threat-agent-scan.sh \
+            --eid "${{ secrets.THREATRIX_EID }}" \
+            --oid "${{ secrets.THREATRIX_OID }}" \
+            --api-token "${{ secrets.THREATRIX_API_KEY }}" \
+            --scm-token "${{ secrets.TOKEN }}" \
+            --app-name "${{ github.repository }}" \
+            --branch "${{ github.ref }}"
