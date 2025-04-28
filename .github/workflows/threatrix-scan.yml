@@ -1,0 +1,24 @@
+name: Threatrix Scan
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  scan:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Run Threatrix Scan
+        uses: threatrix/threat-agent-scan@v1
+        with:
+          eid: ${{ secrets.THREATRIX_EID }}
+          oid: ${{ secrets.THREATRIX_OID }}
+          api-token: ${{ secrets.THREATRIX_API_KEY }}
+          scm-token: ${{ secrets.TOKEN }}
+          app-name: ${{ github.repository }}
+          branch: ${{ github.ref }}
