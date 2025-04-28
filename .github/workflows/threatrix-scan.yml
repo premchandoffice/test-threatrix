@@ -1,4 +1,4 @@
-name: Threatrix Scan
+name: Threatrix Scan and Report
 
 on:
   push:
@@ -7,16 +7,20 @@ on:
     branches: [ main ]
 
 jobs:
-  scan:
+  threatrix_scan:
     runs-on: ubuntu-latest
 
     steps:
+      # Step 1: Checkout code
       - name: Checkout code
         uses: actions/checkout@v2
 
-      - name: Trigger Threatrix Cloud Scan (API-based)
+      # Step 2: Trigger Threatrix Cloud Scan
+      - name: Trigger Threatrix Cloud Scan
+        id: scan
         run: |
-          curl -X POST "https://app.threatrix.io/admin/show/premchand@lyrainfo.com/show/apikey/e649a5e0-6c43-48a9-8b49-7cc11e0a5c66" \
+          # Trigger the scan on Threatrix Cloud
+          response=$(curl -s -w "%{http_code}" -X POST "https://api.threatrix.io/scan" \
             -H "Authorization: Bearer ${{ secrets.THREATRIX_API_KEY }}" \
             -H "Content-Type: application/json" \
             -d '{
@@ -25,4 +29,31 @@ jobs:
                   "app_name": "${{ github.repository }}",
                   "branch": "${{ github.ref }}",
                   "scm_token": "${{ secrets.TOKEN }}"
-                }'
+                }')
+
+          # Extract the HTTP status code and check if the scan request was successful (status 200)
+          http_status=$(echo "$response" | tail -n1)
+          if [[ "$http_status" != "200" ]]; then
+            echo "Failed to trigger Threatrix scan. HTTP status code: $http_status"
+            exit 1
+          else
+            echo "Scan triggered successfully!"
+          fi
+
+      # Step 3: Wait for the scan to complete (optional)
+      # You may need to add additional steps to poll for scan completion if Threatrix provides an API for that.
+      # Example:
+      # - name: Wait for Threatrix scan to complete
+      #   run: |
+      #     sleep 60  # Sleep for 60 seconds or adjust based on scan time
+
+      # Step 4: Retrieve the scan report (optional, depends on Threatrix API capabilities)
+      # If Threatrix API allows fetching scan reports, you can use a second API call here.
+      # For now, the report can be accessed manually from the Threatrix Cloud dashboard.
+
+      # If API call for report available, you could use something like this:
+      # - name: Retrieve Threatrix Scan Report
+      #   run: |
+      #     curl -X GET "https://api.threatrix.io/reports/${{ secrets.THREATRIX_REPORT_ID }}" \
+      #       -H "Authorization: Bearer ${{ secrets.THREATRIX_API_KEY }}" \
+      #       -o report.json
