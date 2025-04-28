@@ -14,18 +14,15 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
 
-      - name: Download Threatrix Cloud Agent
+      - name: Trigger Threatrix Cloud Scan (API-based)
         run: |
-          curl -L -o threat-agent.zip "https://cloud.threatrix.io/downloads/threat-agent.zip"
-          unzip threat-agent.zip
-
-      - name: Run Threatrix Scan
-        run: |
-          chmod +x ./threat-agent-scan.sh
-          ./threat-agent-scan.sh \
-            --eid "${{ secrets.THREATRIX_EID }}" \
-            --oid "${{ secrets.THREATRIX_OID }}" \
-            --api-token "${{ secrets.THREATRIX_API_KEY }}" \
-            --scm-token "${{ secrets.TOKEN }}" \
-            --app-name "${{ github.repository }}" \
-            --branch "${{ github.ref }}"
+          curl -X POST "https://api.threatrix.io/scan" \
+            -H "Authorization: Bearer ${{ secrets.THREATRIX_API_KEY }}" \
+            -H "Content-Type: application/json" \
+            -d '{
+                  "eid": "${{ secrets.THREATRIX_EID }}",
+                  "oid": "${{ secrets.THREATRIX_OID }}",
+                  "app_name": "${{ github.repository }}",
+                  "branch": "${{ github.ref }}",
+                  "scm_token": "${{ secrets.TOKEN }}"
+                }'
