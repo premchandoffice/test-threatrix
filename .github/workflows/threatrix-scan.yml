@@ -16,7 +16,7 @@ jobs:
 
       - name: Trigger Threatrix Cloud Scan (API-based)
         run: |
-          curl -X POST "https://api.threatrix.io/scan" \
+          curl -X POST "https://app.threatrix.io/admin/show/premchand@lyrainfo.com/show/apikey/e649a5e0-6c43-48a9-8b49-7cc11e0a5c66" \
             -H "Authorization: Bearer ${{ secrets.THREATRIX_API_KEY }}" \
             -H "Content-Type: application/json" \
             -d '{
