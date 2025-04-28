@@ -20,13 +20,12 @@ jobs:
           unzip threat-agent.zip
 
       - name: Run Threatrix Scan
-      run: |
-      chmod +x ./tools/threat-agent-scan.sh
-      ./tools/threat-agent-scan.sh \
-      --eid "${{ secrets.THREATRIX_EID }}" \
-      --oid "${{ secrets.THREATRIX_OID }}" \
-      --api-token "${{ secrets.THREATRIX_API_KEY }}" \
-      --scm-token "${{ secrets.TOKEN }}" \
-      --app-name "${{ github.repository }}" \
-      --branch "${{ github.ref }}"
-
+        run: |
+          chmod +x ./threat-agent-scan.sh
+          ./threat-agent-scan.sh \
+            --eid "${{ secrets.THREATRIX_EID }}" \
+            --oid "${{ secrets.THREATRIX_OID }}" \
+            --api-token "${{ secrets.THREATRIX_API_KEY }}" \
+            --scm-token "${{ secrets.TOKEN }}" \
+            --app-name "${{ github.repository }}" \
+            --branch "${{ github.ref }}"
